@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebBot Query Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 800px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            text-align: center;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        h1 {
+            font-size: 36px;
+            color: #3f51b5;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .input-container {
+            margin-bottom: 20px;
+        }
+        #query {
+            padding: 15px;
+            font-size: 16px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+        #query:focus {
+            border-color: #3f51b5;
+            outline: none;
+        }
+        .search-btn {
+            padding: 15px 20px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .search-btn:hover {
+            background-color: #283593;
+        }
+        #results {
+            margin-top: 30px;
+            text-align: left;
+            display: none;
+        }
+        .result {
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #e3f2fd;
+            border-left: 5px solid #3f51b5;
+            border-radius: 5px;
+        }
+        .result a {
+            color: #3f51b5;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .result a:hover {
+            text-decoration: underline;
+        }
+        #error {
+            color: red;
+            margin-top: 10px;
+        }
+        .image-container {
+            margin: 20px 0;
+        }
+        .image-container img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Welcome to WebBot!</h1>
+        <p>Enter your query below to find the most relevant matches:</p>
+
+        <div class="input-container">
+            <input type="text" id="query" placeholder="Enter your query" />
+            <button class="search-btn" onclick="searchQuery()">Search</button>
+        </div>
+
+        <div id="error"></div>
+
+        <div id="results"></div>
+
+        <!-- Image Section (optional) -->
+        <div class="image-container">
+            <img src="https://via.placeholder.com/800x300/3f51b5/ffffff?text=Your+Query+Results+Here" alt="Query Image">
+        </div>
+    </div>
+
+    <script>
+        function searchQuery() {
+            const query = document.getElementById('query').value;
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            errorDiv.innerHTML = ''; // Clear previous errors
+            resultsDiv.innerHTML = ''; // Clear previous results
+            resultsDiv.style.display = 'none'; // Hide previous results initially
+
+            if (!query.trim()) {
+                errorDiv.innerHTML = 'Query cannot be empty.';
+                return;
+            }
+
+            // Make the POST request to Flask backend
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    errorDiv.innerHTML = data.error;
+                } else {
+                    displayResults(data);
+                }
+            })
+            .catch(error => {
+                errorDiv.innerHTML = 'An error occurred. Please try again later.';
+            });
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block'; // Show the results section
+
+            data.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.classList.add('result');
+                resultDiv.innerHTML = `
+                    <strong>Rank ${result.rank}</strong><br>
+                    <a href="${result.link}" target="_blank">${result.link}</a><br>
+                    <p>${result.summary}</p>
+                    <small>Similarity: ${result.similarity}</small>
+                `;
+                resultsDiv.appendChild(resultDiv);
+            });
+        }
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebBot Query Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .result {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the WebBot!</h1>
+        <p>Enter your query to get the top matches:</p>
+        
+        <input type="text" id="query" placeholder="Enter your query" style="width: 100%; padding: 10px;">
+        <button onclick="searchQuery()" style="padding: 10px; margin-top: 10px;">Search</button>
+        
+        <div id="error"></div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function searchQuery() {
+            const query = document.getElementById('query').value;
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            errorDiv.innerHTML = ''; // Clear previous errors
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            if (!query.trim()) {
+                errorDiv.innerHTML = 'Query cannot be empty.';
+                return;
+            }
+
+            // Make the POST request to Flask backend
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    errorDiv.innerHTML = data.error;
+                } else {
+                    displayResults(data);
+                }
+            })
+            .catch(error => {
+                errorDiv.innerHTML = 'An error occurred. Please try again later.';
+            });
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            data.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.classList.add('result');
+                resultDiv.innerHTML = `
+                    <strong>Rank ${result.rank}</strong><br>
+                    <a href="${result.link}" target="_blank">${result.link}</a><br>
+                    <p>${result.summary}</p>
+                    <small>Similarity: ${result.similarity}</small>
+                `;
+                resultsDiv.appendChild(resultDiv);
+            });
+        }
+    </script>
+</body>
+</html> -->
