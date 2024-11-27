@@ -1,0 +1,6 @@
+flask
+pandas
+numpy
+sentence-transformers
+scipy
+rank-bm25
